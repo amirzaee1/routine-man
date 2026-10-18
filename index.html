@@ -41,7 +41,8 @@ body.dark .icon-btn{border-color:rgba(246,243,237,.2)}
 .sara-col{display:grid;gap:10px;position:relative}
 @media (min-width:900px){.sara-col{position:sticky;top:calc(env(safe-area-inset-top,0px) + 24px)}}
 .sara{position:relative;width:100%;max-width:400px;aspect-ratio:1/1;margin-inline:auto;border-radius:var(--r-hero);overflow:hidden;background:var(--surface-strong);box-shadow:var(--shadow);transition:all .7s var(--ease)}
-@media (max-width:899px){.sara,.sara-meta,.thread{max-width:min(400px,66vw)}}
+/* phones: Sarah stays clearly visible but leaves room for the question and its options above the fold */
+@media (max-width:899px){.sara,.sara-meta,.thread{max-width:min(400px,52vw,30vh)}}
 .sara video,.sara img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:100%}
 .sara #talk{opacity:0;transition:opacity .28s var(--ease)}
 .sara.talking #talk{opacity:1}
@@ -242,13 +243,17 @@ function setMusic(target) {
     music.volume = Math.max(0, Math.min(1, v + d * .25));
   }, 40);
 }
-const MUSIC_BED = .16, MUSIC_DUCK = .06;
+// music-love.mp3 is -16.4 LUFS: bed ≈ -32, under Sarah's voice (-21) ≈ -35 LUFS; effects sit around -34
+const MUSIC_BED = .16, MUSIC_DUCK = .12;
 
 /* Sarah speaks one line. Resolves when the line ends or is interrupted. */
-let curStop = null;
-function stopTalk() { if (curStop) curStop(); }
+/* stopTalk (any tap or navigation) also cancels the rest of a running playSeq, so a queued line never
+   starts after the screen has moved on (e.g. «بازگشت به بخش‌ها» in the middle of a pre-line). */
+let curStop = null, seqGen = 0;
+function haltCurrent() { if (curStop) curStop(); }
+function stopTalk() { seqGen++; haltCurrent(); }
 function play(id) {
-  stopTalk();
+  haltCurrent();
   if (!id || (!HAVE.v.includes(id) && !HAVE.a.includes(id))) return Promise.resolve();
   return new Promise(resolve => {
     let done = false, el;
@@ -272,7 +277,10 @@ function play(id) {
     const p = el.play(); if (p) p.catch(finish);
   });
 }
-async function playSeq(ids, isCancelled) { for (const id of ids) { if (isCancelled && isCancelled()) return; await play(id); } }
+async function playSeq(ids, isCancelled) {
+  const g = ++seqGen;
+  for (const id of ids) { if (g !== seqGen || (isCancelled && isCancelled())) return; await play(id); }
+}
 
 /* acknowledgements (copy library §44); A05 only after a neutral answer */
 const ACKS = ['A01','A02','A03','A04','T01','T02','T03','T04','T05'];
@@ -309,7 +317,7 @@ const text = id => LINES[id] || '';
 /* Sarah says something; a soft card shows the line. */
 async function say(id, {kind = 'note', cta = 'ادامه', auto = true, html = '', pre = null} = {}) {
   render(`${eyebrow()}<div class="note ${kind}"><p>${esc(text(id))}</p>${html}</div><div class="actions"><button class="btn" type="button" id="go">${esc(cta)}</button></div>${backLink()}`);
-  if (kind === 'payoff') { sfx('swell-bell', .28); progress(curP); }
+  if (kind === 'payoff') { sfx('swell-bell', .15); progress(curP); }
   let tapped = false;
   const click = new Promise(r => $('#go').onclick = () => { tapped = true; tap(); stopTalk(); r(); });
   const speech = playSeq([pre, id].filter(Boolean), () => tapped).then(() => sleep(350));
@@ -539,7 +547,7 @@ const insightList = key => `<ul class="insights">${insights(key).map(([k, v]) =>
 
 /* ---------- completion of one route ---------- */
 async function completion(key) {
-  setRoute(key); progress(1); sfx('notify-soft', .3);
+  setRoute(key); progress(1); sfx('notify-soft', .16);
   const endId = {skin:'SK-END', hair:'HR-END', body:'BD-END', oral:'OR-END', general:'GN-END'}[key];
   const all = countDone() === 5;
   render(`<div class="done-head"><svg class="loop" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"/><path d="M14 23l6 6 11-12"/></svg>
@@ -572,7 +580,7 @@ async function hub(first) {
       if (picked) return; picked = true; tap(); stopTalk();
       $('#routes').classList.add('chosen'); b.classList.add('picked');
       document.documentElement.style.setProperty('--route', ROUTES[b.dataset.k].c);
-      sfx('soft-short', .25); await sleep(300); res(b.dataset.k);
+      sfx('soft-short', .18); await sleep(300); res(b.dataset.k);
     });
     const rb = $('#res'); if (rb) rb.onclick = () => { picked = true; tap(); stopTalk(); res('result'); };
   });
@@ -593,7 +601,7 @@ async function synthesis() {
     if (one) { await play('SY1'); return; }
     await play('SY2'); if (skipped) return;
     $('#syl').textContent = text('SY3'); $('#synth').classList.add('join'); await play('SY3'); if (skipped) return;
-    $('#syl').textContent = text('SY4'); sfx('swell-bell', .25); await play('SY4');
+    $('#syl').textContent = text('SY4'); sfx('swell-bell', .14); await play('SY4');
   })();
   await Promise.race([run, skip]); await sleep(300);
 }
@@ -727,7 +735,7 @@ async function finale() {
   save();
   const doneKeys = Object.keys(ROUTES).filter(done);
   const open = Object.keys(ROUTES).filter(k => S.status[k] === 'progress');
-  sfx('notify-soft', .3); progress(1);
+  sfx('notify-soft', .16); progress(1);
   render(`<div class="done-head"><svg class="loop" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"/><path d="M14 23l6 6 11-12"/></svg><h2 class="q">تمام شد.</h2></div>
     <p class="helper" style="font-size:17px;color:var(--text)">${esc(text('CF2'))}</p>
     <ul class="insights">${doneKeys.map(k => `<li style="border-inline-start:3px solid ${ROUTES[k].c}"><strong>${esc(ROUTES[k].name)} ✓</strong></li>`).join('')}</ul>
@@ -766,7 +774,7 @@ async function intro() {
     app.appendChild(st);
     if (s.cta) { $('#start').onclick = () => { tap(); stopTalk(); ctaHit(); }; }
     else $('#skip').onclick = () => { skipped = true; tap(); stopTalk(); };
-    sfx('soft-medium', .18);
+    sfx('soft-medium', .11);
     await play(s.id);
     if (!s.cta && !skipped) await sleep(450);
   }
@@ -832,7 +840,7 @@ $('#mute').onclick = () => {
   music.muted = muted; talkV.muted = muted;
 };
 /* standby: a few loops that all start and end on the same resting frame; one is picked at random each time */
-const IDLES = ['IDLE1', 'IDLE2', 'IDLE3'].filter(i => HAVE.v.includes(i));
+const IDLES = HAVE.v.filter(i => /^IDLE\d+$/.test(i));
 let idleCur = null;
 function nextIdle() {
   if (!IDLES.length) return;
