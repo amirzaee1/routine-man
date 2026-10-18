@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex"><meta name="referrer" content="same-origin">
+<title>روتین من</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one calm column on phones — Sarah on top, the question under her; on wide screens Sarah sits beside the question.
+   Tokens come from the «روتین من» master prompt (§4, §5, §39): ivory ground, deep-green CTA, one accent per route, warm-charcoal intro. */
+:root{
+  color-scheme: light;
+  --bg:#FAF8F4; --surface:#F4F0EA; --surface-strong:#ECE7DF;
+  --text:#202927; --text-2:#68716E; --muted:#8B9491; --border:rgba(32,41,39,.10);
+  --accent:#406C62; --accent-press:#34594F; --on-accent:#FAF8F4;
+  --rose:#D7A39D; --gold:#C6A66B;
+  --intro-bg:#1E2321; --intro-text:#F6F3ED; --intro-muted:rgba(246,243,237,.68);
+  --route:#406C62;
+  --font:"Vazirmatn","Peyda","Dana","Yekan Bakh",Tahoma,sans-serif;
+  --r-s:12px; --r-m:18px; --r-l:24px; --r-hero:32px;
+  --shadow:0 8px 30px rgba(32,41,39,.06);
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.75;direction:rtl;transition:background .9s var(--ease),color .9s var(--ease)}
+body.dark{background:var(--intro-bg);color:var(--intro-text)}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+.app{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:16px 40px;min-height:100%;display:grid;gap:20px;grid-template-columns:1fr;align-content:start}
+@media (min-width:900px){.app{grid-template-columns:minmax(300px,400px) minmax(0,1fr);gap:40px;align-items:start;padding-block:40px}}
+
+.topbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-weight:700;font-size:15px;letter-spacing:0;display:flex;align-items:center;gap:8px}
+.brand i{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(198,166,107,.18)}
+.icon-btn{border:1px solid var(--border);background:transparent;border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer;color:inherit}
+body.dark .icon-btn{border-color:rgba(246,243,237,.2)}
+
+/* Sarah */
+.sara-col{display:grid;gap:10px;position:relative}
+@media (min-width:900px){.sara-col{position:sticky;top:calc(env(safe-area-inset-top,0px) + 24px)}}
+.sara{position:relative;width:100%;max-width:400px;aspect-ratio:1/1;margin-inline:auto;border-radius:var(--r-hero);overflow:hidden;background:var(--surface-strong);box-shadow:var(--shadow);transition:all .7s var(--ease)}
+@media (max-width:899px){.sara,.sara-meta,.thread{max-width:min(400px,66vw)}}
+.sara video,.sara img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:100%}
+.sara #talk{opacity:0;transition:opacity .28s var(--ease)}
+.sara.talking #talk{opacity:1}
+.sara-meta{display:flex;align-items:center;justify-content:space-between;max-width:400px;width:100%;margin-inline:auto;font-size:13px;color:var(--text-2)}
+body.dark .sara-meta{color:var(--intro-muted)}
+.speaking{display:inline-flex;gap:3px;align-items:end;height:14px;opacity:0;transition:opacity .3s}
+.sara-col.talking .speaking{opacity:1}
+.speaking b{width:3px;border-radius:2px;background:var(--route);animation:eq 1s var(--ease) infinite}
+.speaking b:nth-child(2){animation-delay:.15s}.speaking b:nth-child(3){animation-delay:.3s}
+@keyframes eq{0%,100%{height:4px}50%{height:14px}}
+/* in the intro Sarah shrinks to a talking bubble */
+body.intro .sara-col{position:fixed;inset-inline-start:16px;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:5;width:92px}
+body.intro .sara{width:92px;height:92px;border-radius:50%;box-shadow:0 0 0 3px rgba(246,243,237,.25)}
+body.intro .sara-meta{display:none}
+
+/* light thread */
+.thread{position:relative;height:3px;border-radius:3px;background:var(--surface-strong);overflow:hidden;max-width:400px;width:100%;margin-inline:auto}
+.thread span{position:absolute;inset-block:0;inset-inline-start:0;width:var(--p,0%);background:linear-gradient(90deg,var(--route),color-mix(in srgb,var(--route) 60%,var(--gold)));border-radius:3px;transition:width .6s var(--ease)}
+.thread.pulse span{animation:pulse .42s var(--ease)}
+@keyframes pulse{50%{filter:brightness(1.35);box-shadow:0 0 12px var(--route)}}
+body.intro .thread{display:none}
+
+/* panel */
+.panel{min-width:0;display:grid;gap:16px;align-content:start}
+.eyebrow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);font-weight:500}
+.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--route)}
+.q{font-size:clamp(22px,5.4vw,27px);font-weight:600;line-height:1.6;text-wrap:balance;margin:0;max-width:30ch}
+.helper{font-size:14px;color:var(--text-2);margin:0;max-width:52ch}
+.fade{animation:fadeUp .42s var(--ease) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+.opts{display:grid;gap:10px}
+.opts.grid2{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.opt{display:flex;align-items:center;gap:12px;text-align:start;width:100%;padding:13px 16px;border-radius:var(--r-m);border:1px solid var(--border);background:var(--surface);font-size:16px;cursor:pointer;transition:transform .18s var(--ease),border-color .18s,background .18s;line-height:1.6}
+.opt:hover{border-color:color-mix(in srgb,var(--route) 45%,transparent)}
+.opt .tick{flex:0 0 20px;height:20px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--text) 25%,transparent);display:grid;place-items:center;transition:all .18s}
+.opt.multi .tick{border-radius:6px}
+.opt[aria-pressed="true"]{border-color:var(--route);background:color-mix(in srgb,var(--route) 9%,var(--bg));transform:scale(1.015)}
+.opt[aria-pressed="true"] .tick{background:var(--route);border-color:var(--route)}
+.opt[aria-pressed="true"] .tick::after{content:"";width:6px;height:10px;border:2px solid var(--on-accent);border-top:0;border-inline-start:0;transform:rotate(45deg) translate(-1px,-1px)}
+.opts .opt{animation:fadeUp .42s var(--ease) both;animation-delay:calc(var(--i,0) * 70ms + 250ms)}
+.scale{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-m);padding:6px}
+.scale .opt{border:0;background:transparent;justify-content:center;padding:12px 6px;font-size:14px;text-align:center}
+.scale .opt .tick{display:none}
+.scale .opt[aria-pressed="true"]{background:var(--route);color:var(--on-accent)}
+@media (max-width:420px){.scale{grid-template-columns:repeat(2,1fr)}}
+
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:0;border-radius:var(--r-m);padding:13px 22px;font-weight:600;font-size:16px;cursor:pointer;background:var(--accent);color:var(--on-accent);transition:background .18s,transform .18s}
+.btn:hover{background:var(--accent-press)}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent)}
+.btn.ghost:hover{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+body.dark .btn{background:var(--intro-text);color:var(--intro-bg)}
+.link{background:none;border:0;color:var(--text-2);font-size:14px;cursor:pointer;padding:6px 2px;text-decoration:underline;text-underline-offset:4px}
+body.dark .link{color:var(--intro-muted)}
+
+.note{border-radius:var(--r-l);padding:20px;background:var(--surface);border:1px solid var(--border);display:grid;gap:12px}
+.note.payoff{background:color-mix(in srgb,var(--route) 8%,var(--bg));border-color:color-mix(in srgb,var(--route) 30%,transparent)}
+.note.safety{background:color-mix(in srgb,var(--gold) 10%,var(--bg));border-color:color-mix(in srgb,var(--gold) 35%,transparent)}
+.note p{margin:0;font-size:17px;line-height:1.85}
+
+.field{display:grid;gap:6px}
+.field label{font-size:14px;color:var(--text-2);font-weight:500}
+.field input,.field textarea{font:inherit;font-size:17px;padding:13px 16px;border-radius:var(--r-m);border:1px solid var(--border);background:var(--surface);color:var(--text);width:100%}
+.field input:focus,.field textarea:focus{outline:2px solid var(--route);outline-offset:1px}
+.field .err{font-size:14px;color:#9A4B3F;min-height:1.4em}
+.field input[dir="ltr"]{text-align:right}
+.consent{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-m);border:1px solid var(--border);background:var(--surface);font-size:15px;line-height:1.75;cursor:pointer}
+.consent input{flex:0 0 20px;width:20px;height:20px;margin:3px 0 0;accent-color:var(--accent);cursor:pointer}
+.consents{display:grid;gap:8px}
+.form-msg{font-size:14px;color:#9A4B3F;min-height:1.4em;margin:0}
+.form-msg.calm{color:var(--text-2)}
+
+/* hub */
+.routes{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.route{--route:var(--c);position:relative;text-align:start;padding:16px;border-radius:var(--r-l);border:1px solid var(--border);background:var(--surface);cursor:pointer;display:grid;gap:4px;transition:transform .2s var(--ease),opacity .25s,border-color .2s}
+.route::before{content:"";width:28px;height:3px;border-radius:3px;background:var(--c)}
+.route b{font-size:17px;font-weight:600}
+.route small{font-size:13px;color:var(--text-2)}
+.route:hover{border-color:var(--c)}
+.route.done::after{content:"✓";position:absolute;inset-inline-end:14px;top:12px;color:var(--c);font-weight:700}
+.routes.chosen .route:not(.picked){opacity:.38}
+.route.picked{transform:scale(1.02);border-color:var(--c)}
+
+/* completion & result */
+.done-head{display:flex;align-items:center;gap:12px}
+.loop{width:44px;height:44px;flex:0 0 44px}
+.loop circle{fill:none;stroke:var(--route);stroke-width:3;stroke-dasharray:126;stroke-dashoffset:126;animation:draw .7s var(--ease) forwards;stroke-linecap:round}
+.loop path{fill:none;stroke:var(--route);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:30;stroke-dashoffset:30;animation:draw .35s .6s var(--ease) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.insights{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.insights li{display:grid;gap:2px;padding:12px 16px;border-radius:var(--r-m);background:var(--surface);border:1px solid var(--border)}
+.insights li span{font-size:13px;color:var(--text-2)}
+.insights li strong{font-weight:600;font-size:16px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:4px 12px;border-radius:999px;background:color-mix(in srgb,var(--gold) 16%,var(--bg));color:#6E5A2E;width:fit-content}
+.rcard{--route:var(--c);border-radius:var(--r-l);border:1px solid var(--border);padding:18px;display:grid;gap:10px;background:var(--bg)}
+.rcard h3{margin:0;font-size:18px;display:flex;align-items:center;gap:8px}
+.rcard h3::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c)}
+.disclaimer{font-size:13px;color:var(--muted);margin:0}
+
+/* synthesis threads */
+.synth{position:relative;height:120px;border-radius:var(--r-l);background:var(--surface);overflow:hidden}
+.synth i{position:absolute;inset-inline:10%;height:2px;border-radius:2px;background:var(--c);top:var(--y);transition:top 1.4s var(--ease),inset-inline 1.4s var(--ease),opacity 1s}
+.synth.join i{top:50%;inset-inline:30%}
+.synth.one i{inset-inline:20%;box-shadow:0 0 18px var(--c)}
+
+/* intro scenes */
+.intro-stage{grid-column:1/-1;display:grid;gap:22px;justify-items:center;text-align:center;padding-block:4vh 120px}
+.intro-img{width:100%;max-width:520px;aspect-ratio:1/1;border-radius:var(--r-hero);overflow:hidden;background:#2A302D}
+.intro-img img{width:100%;height:100%;object-fit:cover;max-width:100%;animation:slow 9s linear both}
+@keyframes slow{from{transform:scale(1.04)}to{transform:scale(1)}}
+.intro-line{font-size:clamp(22px,5.6vw,30px);font-weight:600;line-height:1.7;max-width:22ch;text-wrap:balance;margin:0}
+.intro-sub{font-size:17px;max-width:44ch;margin:0;color:var(--text-2)}
+body.dark .intro-sub{color:var(--intro-muted)}
+.light{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,#FFF6E4 0%,rgba(255,236,200,.5) 45%,transparent 70%);box-shadow:0 0 40px 18px rgba(255,236,200,.18);animation:breathe 3.6s ease-in-out infinite;margin-block:18vh 4vh}
+@keyframes breathe{50%{transform:scale(1.5);opacity:.75}}
+
+.boot{grid-column:1/-1;display:grid;justify-items:center;text-align:center;gap:18px;padding-block:14vh 40px}
+.boot h1{font-size:clamp(30px,8vw,40px);margin:0;font-weight:700}
+.boot p{margin:0;max-width:40ch;color:var(--intro-muted)}
+
+.back{justify-self:start}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}}
+</style>
+
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="brand"><i></i>روتین من</div>
+    <button class="icon-btn" id="mute" type="button" aria-pressed="false">صدا: روشن</button>
+  </div>
+  <aside class="sara-col" id="saraCol" aria-label="سارا، مشاور روتین">
+    <div class="sara" id="sara">
+      <img src="media/img/sara-rest.jpg" alt="سارا، مشاور روتین">
+      <video id="idle" muted playsinline preload="auto" poster="media/img/sara-rest.jpg"></video>
+      <video id="talk" playsinline preload="auto"></video>
+    </div>
+    <div class="sara-meta"><span>سارا · مشاور روتین</span><span class="speaking" aria-hidden="true"><b></b><b></b><b></b></span></div>
+    <div class="thread" id="thread"><span></span></div>
+  </aside>
+  <section class="panel" id="panel" aria-live="polite"></section>
+</div>
+<audio id="music" src="media/music-love.mp3" loop preload="auto"></audio>
+
+<script>
+const LINES = {"V00": "می‌خوای از جایی که بودی ادامه بدی؟", "V01": "هر روز، بدون اینکه حواسمون باشه، انتخاب‌هایی برای خودمون انجام می‌دیم.", "V02": "چیزی که باهاش صورتت رو می‌شوری…", "V03": "چیزی که به موهات می‌زنی…", "V04": "حتی چیزهایی که هیچ‌وقت اسمش رو روتین نذاشتی.", "V05": "همه‌ی این‌ها، روتین توئه.", "V06": "روتین یعنی مجموعه‌ای از کارهای ساده و منظمی که برای مراقبت از خودمون انجام می‌دیم؛ مثلاً شست‌وشو و محافظت از پوست، یا مراقبت از پوست سر و ساقه مو.", "V07": "اما روتین درست برای هر کسی متفاوته.", "PF00": "قبل از اینکه شروع کنیم، دو تا سؤال کوتاه ازت دارم.", "PF01": "چند سالته؟", "PF02": "و خودت رو بیشتر کدوم می‌دونی؟", "V08": "دوست داری از کجا شروع کنیم؟ چیزی رو انتخاب کن که این روزها بیشتر توجهت رو گرفته.", "V09": "بیشتر از یه مورد برات مهمه؟ مشکلی نیست؛ بعد از این بخش می‌تونی بقیه رو هم بررسی کنی.", "A01": "متوجه شدیم.", "A02": "ثبت شد.", "A03": "این مورد رو هم در نظر می‌گیریم.", "A04": "باشه، این رو هم نگه می‌داریم.", "A05": "خوبه که گفتی.", "T01": "حالا یه تکه دیگه رو ببینیم.", "T02": "این جواب یه سرنخ داد.", "T03": "یه سؤال دیگه کمک می‌کنه تصویر کامل‌تر بشه.", "T04": "تا اینجا خوب شناختیمش؛ بریم قدم بعد.", "T05": "این بخش تقریباً روشن شد.", "SK00": "بریم اول ببینیم پوستت این روزها چه نشونه‌هایی بهت می‌ده.", "SK01": "فکر می‌کنی پوستت بیشتر کدوم مدله؟", "SK01u": "مشکلی نیست؛ جواب چند سؤال بعدی کمک می‌کنه بهتر بشناسیمش.", "SK02": "بعد از شستن صورتت یا در طول روز، کدوم حالت‌ها برات آشناتره؟", "SK02h": "چند مورد رو با هم تجربه می‌کنی؛ خوبه که همه‌شون رو گفتی.", "SK-P1": "دو نشونه کنار هم دیده می‌شه: کشیدگی بعد از شست‌وشو و نیاز دوباره به رطوبت. پس حفظ رطوبت پوستت ارزش بررسی بیشتری داره.", "SK-P2": "چربی و منافذ کنار هم دیده می‌شن؛ سؤال بعد کمک می‌کنه بفهمیم این الگو بیشتر کجای صورتت اتفاق می‌افته.", "SK-P3": "جواب‌هات نشون می‌ده بخش‌های مختلف صورتت ممکنه رفتار یکسانی نداشته باشن.", "SK-P4": "پوستت ظاهراً به بعضی محرک‌ها زود واکنش نشون می‌ده؛ برای همین سابقه حساسیت رو هم کمی جلوتر بررسی می‌کنیم.", "SK03": "این حالت‌ها معمولاً چقدر تکرار می‌شن؟", "SK04a": "حالا یه چیز مهم‌تر…", "SK04": "اگه فقط یک چیز قرار بود بهتر بشه، دوست داشتی کدوم باشه؟", "SK04b": "مورد دیگه‌ای هم هست که برات مهم باشه؟", "SK05": "تقریباً از کی بیشتر متوجه این موضوع شدی؟", "SK06": "ببینیم الان چه چیزهایی توی روتینت هست.", "SK06a": "اگه دوست داری، بگو معمولاً صورتت رو با چی می‌شوری.", "SK06b": "این محصولات رو معمولاً خودت درست می‌کنی یا از کسی می‌گیری؟", "SK-END": "پوست صورت؛ این بخش رو شناختیم.", "SF1": "برای این موضوع، توی ۶ ماه گذشته زیر نظر پزشک پوست و مو بودی؟", "SF1a": "اگه راحتی، موضوعش رو خیلی کوتاه بنویس.", "SF2": "تا حالا به محصول آرایشی، بهداشتی یا مراقبتی حساسیت داشتی؟", "SF2y": "چون سابقه حساسیت گفتی، پیشنهاد دقیق بهتره بعد از بررسی مشاور انجام بشه.", "HR00a": "مو فقط ساقه‌ای نیست که می‌بینیم؛ پوست سر هم بخش مهمی از روتینشه.", "HR00b": "ببینیم بیشتر کدوم قسمت توجهت رو گرفته.", "HR01": "در مورد موهات، بیشتر چی اذیتت می‌کنه یا برات مهمه؟", "HR02": "کدوم حالت‌ها برای پوست سرت آشناتره؟", "HR02e": "چون به اگزما یا پسوریازیس اشاره کردی، پیشنهاد محصول نباید جای بررسی پزشک رو بگیره.", "HR02d": "ممکنه در زمان‌ها یا نواحی مختلف تجربه متفاوتی داشته باشی.", "HR03": "ساقه موهات بیشتر چه وضعیتی داره؟", "HR-P1": "چند عامل کنار هم روی ساقه مو دیده می‌شه؛ بهتره در جمع‌بندی، مراقبت از ساقه رو جدا از پوست سر ببینیم.", "HR04": "الان معمولاً برای موهات از چی استفاده می‌کنی؟", "HR04a": "تقریباً چند وقته از محصول ضدریزش استفاده می‌کنی؟", "HR05": "معمولاً هر چند وقت یک‌بار موهات رو می‌شوری؟", "HR06": "ریزش مو بیشتر چه زمانی به چشمت میاد؟", "HR07": "کدوم بخش برات مهم‌تره؟", "HR-END": "مو و پوست سر؛ این بخش رو شناختیم.", "BD00a": "مراقبت فقط به صورت ختم نمی‌شه.", "BD00b": "ببینیم پوست بدنت بیشتر کجا توجه می‌خواد.", "BD01": "کدوم مورد برات آشناتره؟", "BD01n": "هدفت بیشتر حفظ روتین فعلیه؟", "BD02": "این موضوع بیشتر کدوم قسمت بدنه؟", "BD04": "برای پوست بدنت معمولاً از چی استفاده می‌کنی؟", "BD-END": "پوست بدن؛ این بخش رو شناختیم.", "OR00": "بعضی بخش‌های روتین انقدر روزمره‌ان که کمتر بهشون فکر می‌کنیم.", "OR01": "در مورد دهان و دندانت، بیشتر کدوم مورد برات مهمه؟", "OR02": "از بین این‌ها، کدوم برات اولویت بیشتری داره؟", "OR03": "الان روتین دهان و دندانت معمولاً شامل چیه؟", "OR-S": "برای علائم مداوم یا آزاردهنده، بررسی پزشک/دندان‌پزشک می‌تونه مهم باشه.", "OR-END": "دهان و دندان؛ این بخش رو شناختیم.", "GN00": "گاهی چیزی که می‌خوایم بهترش کنیم، فقط پوست یا مو نیست؛ بخشی از حال و روتین روزمره‌مونه.", "GN01": "کدوم موضوع بیشتر برات مهمه؟", "GN02": "این موضوع بیشتر روی کدوم بخش روزت اثر می‌ذاره؟", "GN-END": "مراقبت عمومی؛ این بخش رو شناختیم.", "HB1": "این بخش رو شناختیم. چیز دیگه‌ای هم هست که دوست داری بررسی کنیم؟", "HB2": "تا اینجا چند تکه از روتینت رو کنار هم داریم.", "SY1": "این چیزی بود که از جواب‌هات درباره این بخش فهمیدیم.", "SY2": "تا اینجا، چند تکه جدا از روتینت رو دیدیم.", "SY3": "اما روتین، مجموعه همین تکه‌هاست.", "SY4": "حالا تصویر روشن‌تره.", "RS1": "این چیزی بود که جواب‌هات درباره روتینت به ما گفت.", "RS-A": "چون به حساسیت اشاره کردی، این قسمت بهتره با احتیاط بیشتری بررسی بشه.", "RS-D": "چون گفتی اخیراً زیر نظر پزشک بودی، پیشنهاد دقیق نباید جای توصیه پزشکت رو بگیره.", "RS-X": "این نتیجه یک بررسی اولیه بر اساس پاسخ‌های خودته و جای تشخیص یا درمان پزشکی رو نمی‌گیره.", "CV1": "اگه بخوای، قدم بعدی اینه که بر اساس همین جواب‌ها یک پیشنهاد روتین دقیق‌تر برات آماده بشه.", "CV2": "هر وقت خواستی ادامه بده.", "LD1": "پیشنهادت رو برای چه کسی آماده کنیم؟", "LD2": "چه اسمی صدات کنیم؟", "LD3": "شماره رو یه بار دیگه چک کن؛ انگار یک رقم کم یا زیاد شده.", "LD4": "ترجیح می‌دی مشاور چطور باهات در ارتباط باشه؟", "OB1": "یه سؤال آخر، فقط برای اینکه بدونیم چه چیزهایی برات جذابه…", "OB2": "اگه در کنار استفاده شخصی، مزایای دیگه‌ای هم وجود داشته باشه، دوست داری بعداً درباره‌ش بدونی؟", "OB3": "حتماً؛ تمرکز روی همون روتین می‌مونه.", "CF1": "تموم شد.", "CF2": "پاسخ‌هات برای ادامه مشاوره آماده‌ست؛ لازم نیست دوباره همه‌چیز رو از اول توضیح بدی.", "CF3": "اگه دوست داری، قبل از ادامه مشاوره این بخش رو هم کامل کن."};
+const HAVE = {"v": ["IDLE1", "V00", "V01", "V02", "V03", "V04", "V05", "V06", "V07", "PF00", "PF01", "PF02", "V08", "V09", "A01", "A02", "A03", "A04", "A05", "T01", "T02", "T03", "T04", "T05", "SK00", "SK01", "SK01u", "SK02", "SK02h", "SK-P1", "SK-P2", "SK-P3", "SK-P4", "SK03", "SK04a", "SK04", "SK04b", "SK05", "SK06", "SK06a", "SK06b", "SK-END", "SF1", "SF1a", "SF2", "SF2y", "HR00a", "HR00b", "HR01", "HR02", "HR02e", "HR02d", "HR03", "HR-P1", "HR04", "HR04a", "HR05", "HR06", "HR07", "HR-END", "BD00a", "BD00b", "BD01", "BD01n", "BD02", "BD04", "BD-END", "OR00", "OR01", "OR02", "OR03", "OR-S", "OR-END", "GN00", "GN01", "GN02", "GN-END", "HB1", "HB2", "SY1", "SY2", "SY3", "SY4", "RS1", "RS-A", "RS-D", "RS-X", "CV1", "CV2", "LD1", "LD2", "LD3", "LD4", "OB1", "OB2", "OB3", "CF1", "CF2", "CF3"], "a": []};
+const BACKEND = true;   // true only in the hosted build (deploy/server.mjs answers /api/lead)
+const API_BASE = "";
+/* where the lead goes: the lead proxy (deploy/server.mjs). A GitHub Pages copy has no server of its own,
+   so there it needs API_BASE; without it the form stays a local demo, like the artifact. */
+const LEAD_URL = !BACKEND ? null : API_BASE ? API_BASE.replace(/\/+$/, '') + '/api/lead' : /\.github\.io$/.test(location.hostname) ? null : '/api/lead';
+
+const $ = (s, el = document) => el.querySelector(s);
+const panel = $('#panel'), app = $('#app');
+const talkV = $('#talk'), idleV = $('#idle'), saraBox = $('#sara'), saraCol = $('#saraCol');
+const music = $('#music');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ---------- state ---------- */
+const ROUTES = {
+  skin:    {name:'پوست صورت',    c:'#C98F8A', fn:() => routeSkin()},
+  hair:    {name:'مو و پوست سر', c:'#8A6A58', fn:() => routeHair()},
+  body:    {name:'پوست بدن',     c:'#B88A69', fn:() => routeBody()},
+  oral:    {name:'دهان و دندان', c:'#8EA8B7', fn:() => routeOral()},
+  general: {name:'مراقبت عمومی', c:'#6E8A74', fn:() => routeGeneral()},
+};
+const fresh = () => ({profile:{}, a:{}, status:{skin:'new',hair:'new',body:'new',oral:'new',general:'new'}, flags:{}, safety:null, lead:null, other:null});
+let S = fresh();
+let muted = false;
+const KEY = 'routine-man-sara-v1';
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } };
+
+/* ---------- referral (?ref=CODE, master prompt §26) ----------
+   Read once on entry and kept in sessionStorage; an invalid code never breaks the journey (ref = null). */
+const REF_RE = /^T[A-Z0-9]{9}$/, REF_KEY = 'routine-man-ref';
+const REF = (() => {
+  let ref = null;
+  try { const q = (new URLSearchParams(location.search).get('ref') || '').trim().toUpperCase(); if (REF_RE.test(q)) ref = q; } catch (e) {}
+  try { if (ref) sessionStorage.setItem(REF_KEY, ref); else ref = sessionStorage.getItem(REF_KEY); } catch (e) {}
+  return ref && REF_RE.test(ref) ? ref : null;
+})();
+
+/* ---------- sound ---------- */
+const SFX = {};
+['tap-wood','click-soft','pop-3','soft-short','soft-medium','notify-soft','swell-bell'].forEach(n => { const a = new Audio(`media/sfx/${n}.mp3`); a.preload = 'auto'; SFX[n] = a; });
+let tapFlip = 0;
+function sfx(name, vol = .35) { if (muted) return; const a = SFX[name]; if (!a) return; try { const c = a.cloneNode(); c.volume = vol; c.play().catch(() => {}); } catch (e) {} }
+const tap = () => sfx((tapFlip++ % 2) ? 'tap-wood' : 'click-soft', .3);
+let duckTimer;
+function setMusic(target) {
+  clearInterval(duckTimer);
+  duckTimer = setInterval(() => {
+    const v = music.volume, d = target - v;
+    if (Math.abs(d) < .006) { music.volume = target; clearInterval(duckTimer); return; }
+    music.volume = Math.max(0, Math.min(1, v + d * .25));
+  }, 40);
+}
+const MUSIC_BED = .16, MUSIC_DUCK = .06;
+
+/* Sarah speaks one line. Resolves when the line ends or is interrupted. */
+let curStop = null;
+function stopTalk() { if (curStop) curStop(); }
+function play(id) {
+  stopTalk();
+  if (!id || (!HAVE.v.includes(id) && !HAVE.a.includes(id))) return Promise.resolve();
+  return new Promise(resolve => {
+    let done = false, el;
+    const finish = () => {
+      if (done) return; done = true; curStop = null;
+      saraBox.classList.remove('talking'); saraCol.classList.remove('talking');
+      setMusic(MUSIC_BED);
+      if (el) { el.onended = null; el.onerror = null; try { el.pause(); } catch (e) {} }
+      resolve();
+    };
+    curStop = finish;
+    if (HAVE.v.includes(id)) {
+      el = talkV; el.src = `media/v/${id}.mp4`;
+      saraBox.classList.add('talking');
+    } else {
+      el = new Audio(`media/a/${id}.mp3`);
+    }
+    el.muted = muted; el.currentTime = 0;
+    el.onended = finish; el.onerror = finish;
+    saraCol.classList.add('talking'); setMusic(MUSIC_DUCK);
+    const p = el.play(); if (p) p.catch(finish);
+  });
+}
+async function playSeq(ids, isCancelled) { for (const id of ids) { if (isCancelled && isCancelled()) return; await play(id); } }
+
+/* acknowledgements (copy library §44); A05 only after a neutral answer */
+const ACKS = ['A01','A02','A03','A04','T01','T02','T03','T04','T05'];
+let lastAck = null;
+function ack(neutral = true) {
+  if (Math.random() < .35) return null;
+  const pool = ACKS.concat(neutral ? ['A05'] : []).filter(x => x !== lastAck);
+  lastAck = pool[Math.floor(Math.random() * pool.length)];
+  return lastAck;
+}
+const PAINFUL = /ریزش|درد|حساسیت|جوش|آکنه|التهاب|اگزما|پسوریازیس|قرمزی|سوزش|خارش|شوره|بوی بد|پوکی|ترک|لک|تیرگی/;
+const neutralOf = v => !PAINFUL.test([].concat(v || []).join(' '));
+
+/* ---------- light thread ---------- */
+const threadEl = $('#thread');
+function setRoute(key) { const c = key ? ROUTES[key].c : '#406C62'; document.documentElement.style.setProperty('--route', c); }
+function progress(p) { threadEl.style.setProperty('--p', Math.round(p * 100) + '%'); threadEl.classList.remove('pulse'); void threadEl.offsetWidth; threadEl.classList.add('pulse'); }
+
+/* ---------- rendering helpers ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let curRoute = null;
+function eyebrow() {
+  if (!curRoute) return '';
+  return `<div class="eyebrow"><span class="dot"></span>${esc(ROUTES[curRoute].name)}</div>`;
+}
+function backLink() {
+  return curRoute ? `<button class="link back" type="button" data-back>بازگشت به بخش‌ها</button>` : '';
+}
+let backResolve = null;
+panel.addEventListener('click', e => { if (e.target.closest('[data-back]') && backResolve) { tap(); stopTalk(); backResolve(); } });
+function render(html) { panel.innerHTML = html; panel.classList.remove('fade'); void panel.offsetWidth; panel.classList.add('fade'); window.scrollTo({top: 0, behavior: 'smooth'}); }
+const text = id => LINES[id] || '';
+
+/* Sarah says something; a soft card shows the line. */
+async function say(id, {kind = 'note', cta = 'ادامه', auto = true, html = '', pre = null} = {}) {
+  render(`${eyebrow()}<div class="note ${kind}"><p>${esc(text(id))}</p>${html}</div><div class="actions"><button class="btn" type="button" id="go">${esc(cta)}</button></div>${backLink()}`);
+  if (kind === 'payoff') { sfx('swell-bell', .28); progress(curP); }
+  let tapped = false;
+  const click = new Promise(r => $('#go').onclick = () => { tapped = true; tap(); stopTalk(); r(); });
+  const speech = playSeq([pre, id].filter(Boolean), () => tapped).then(() => sleep(350));
+  await (auto ? Promise.race([click, speech]) : click);
+}
+
+/* long answers get one column; many short ones get two */
+const optsClass = options => options.length > 6 && Math.max(...options.map(o => o.length)) <= 16 ? 'opts grid2' : 'opts';
+
+/* single choice */
+async function single(id, options, {pre = null, layout = 'list', qText = null} = {}) {
+  const cls = layout === 'scale' ? 'scale' : optsClass(options);
+  render(`${eyebrow()}<h2 class="q">${esc(qText || text(id))}</h2>
+    <div class="${cls}" role="group">${options.map((o, i) => `<button class="opt" type="button" style="--i:${i}" aria-pressed="false" data-v="${esc(o)}"><span class="tick"></span><span>${esc(o)}</span></button>`).join('')}</div>${backLink()}`);
+  let answered = false;
+  playSeq([pre, id].filter(Boolean), () => answered);
+  return new Promise(res => {
+    panel.querySelectorAll('.opt').forEach(b => b.onclick = async () => {
+      if (answered) return; answered = true; tap(); stopTalk();
+      b.setAttribute('aria-pressed', 'true'); progress(curP += .07);
+      await sleep(260); res(b.dataset.v);
+    });
+  });
+}
+
+/* multi choice; `exclusive` clears the rest; `max` caps choices */
+async function multi(id, options, {pre = null, exclusive = null, max = 0, skip = null, qText = null} = {}) {
+  render(`${eyebrow()}<h2 class="q">${esc(qText || text(id))}</h2>
+    <div class="${optsClass(options)}" role="group">${options.map((o, i) => `<button class="opt multi" type="button" style="--i:${i}" aria-pressed="false" data-v="${esc(o)}"><span class="tick"></span><span>${esc(o)}</span></button>`).join('')}</div>
+    <div class="actions"><button class="btn" type="button" id="go" disabled>ادامه</button>${skip ? `<button class="btn ghost" type="button" id="skip">${esc(skip)}</button>` : ''}</div>${backLink()}`);
+  let answered = false;
+  playSeq([pre, id].filter(Boolean), () => answered);
+  const btns = [...panel.querySelectorAll('.opt')], go = $('#go');
+  const picked = () => btns.filter(b => b.getAttribute('aria-pressed') === 'true').map(b => b.dataset.v);
+  btns.forEach(b => b.onclick = () => {
+    tap();
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    if (on && max && picked().length >= max) return;
+    b.setAttribute('aria-pressed', String(on));
+    if (on && exclusive) btns.forEach(o => { if ((b.dataset.v === exclusive) !== (o.dataset.v === exclusive)) o.setAttribute('aria-pressed', 'false'); });
+    go.disabled = picked().length === 0;
+  });
+  return new Promise(res => {
+    go.onclick = () => { answered = true; stopTalk(); tap(); progress(curP += .07); res(picked()); };
+    if (skip) $('#skip').onclick = () => { answered = true; stopTalk(); tap(); res([]); };
+  });
+}
+
+/* short free text (optional) */
+async function freeText(id, placeholder, {pre = null} = {}) {
+  render(`${eyebrow()}<h2 class="q">${esc(text(id))}</h2>
+    <div class="field"><label for="ft">${esc('اختیاری')}</label><textarea id="ft" rows="2" maxlength="160" placeholder="${esc(placeholder)}"></textarea></div>
+    <div class="actions"><button class="btn" type="button" id="go">ثبت</button><button class="btn ghost" type="button" id="skip">رد شدن</button></div>${backLink()}`);
+  let answered = false;
+  playSeq([pre, id].filter(Boolean), () => answered);
+  return new Promise(res => {
+    $('#go').onclick = () => { answered = true; stopTalk(); tap(); res($('#ft').value.trim() || null); };
+    $('#skip').onclick = () => { answered = true; stopTalk(); tap(); res(null); };
+  });
+}
+
+let curP = 0;
+const done = (key) => S.status[key] === 'done';
+const countDone = () => Object.values(S.status).filter(s => s === 'done').length;
+
+/* run a route; "بازگشت به بخش‌ها" abandons it (it stays «ادامه») */
+const ABORT = Symbol('abort');
+async function runRoute(key) {
+  curRoute = key; setRoute(key); curP = .04; progress(curP);
+  if (S.status[key] !== 'done') S.status[key] = 'progress';
+  save();
+  const back = new Promise(r => backResolve = () => r(ABORT));
+  const r = await Promise.race([ROUTES[key].fn(), back]);
+  backResolve = null;
+  if (r === ABORT) { curRoute = null; setRoute(null); return 'hub'; }
+  S.status[key] = 'done'; save();
+  return completion(key);
+}
+
+/* ---------- shared safety (asked once) ---------- */
+async function safety() {
+  if (S.safety) return;
+  const doc = await single('SF1', ['بله', 'خیر'], {pre: ack()});
+  let docNote = null;
+  if (doc === 'بله') { S.flags.recentDoctor = true; docNote = await freeText('SF1a', 'مثلاً لک، جوش، حساسیت…'); }
+  const al = await single('SF2', ['بله', 'خیر', 'مطمئن نیستم']);
+  if (al === 'بله') S.flags.allergy = true;
+  if (al === 'مطمئن نیستم') S.flags.allergyUnknown = true;
+  S.safety = {doctor: doc, doctorNote: docNote, allergy: al}; save();
+  if (al !== 'خیر') await say('SF2y', {kind: 'safety'});
+}
+
+/* ---------- route: skin ---------- */
+const SK_SYMPTOMS = ['بعد از شستن، پوستم می‌کشه','در طول روز دوباره مرطوب‌کننده می‌خوام','پوسته‌پوسته یا خارش دارم','پوستم به عوامل بیرونی زود واکنش نشون می‌ده','گاهی خارش، سوزش یا قرمزی دارم','پیشونی یا صورتم زود برق می‌افته','اغلب حس چربی روی پوستم دارم','منافذ یا جوش/سرسیاه دارم','گونه‌هام خشک‌تره ولی پیشونی/بینی/چانه چرب‌تره'];
+const SK_PRIOR = ['آبرسانی','رفع خشکی','تغذیه و تقویت پوست','پاکسازی مؤثرتر','جوان‌سازی','خطوط و افتادگی','چین‌وچروک','تیرگی/چروک دور چشم','لک و تیرگی','جوش یا آکنه','منافذ باز','حساسیت و قرمزی'];
+const DURATION = ['کمتر از ۳ ماه','۳ تا ۶ ماه','۶ ماه تا ۲ سال','بیشتر از ۲ سال','دقیق یادم نیست'];
+async function routeSkin() {
+  const A = S.a.skin = {};
+  await say('SK00', {kind: 'payoff', cta: 'شروع کنیم'});
+  A.type = await single('SK01', ['خشک','چرب','مختلط','حساس','نرمال','مطمئن نیستم']);
+  if (A.type === 'مطمئن نیستم') await say('SK01u');
+  // the chosen type only reorders the list; nothing is removed
+  const lift = {
+    'خشک': [0, 1, 2], 'چرب': [5, 6, 7], 'مختلط': [8, 5], 'حساس': [3, 4],
+  }[A.type] || [];
+  const order = lift.map(i => SK_SYMPTOMS[i]).concat(SK_SYMPTOMS.filter((_, i) => !lift.includes(i)));
+  A.symptoms = await multi('SK02', order.concat(['هیچ‌کدوم']), {exclusive: 'هیچ‌کدوم', pre: ack()});
+  const has = s => A.symptoms.includes(s), none = has('هیچ‌کدوم');
+  if (A.symptoms.length > 5) await say('SK02h');
+  A.patterns = [];
+  if (has(SK_SYMPTOMS[0]) && has(SK_SYMPTOMS[1])) { A.patterns.push('نشانه‌های کم‌آبی'); await say('SK-P1', {kind: 'payoff', auto: false}); }
+  if ((has(SK_SYMPTOMS[5]) || has(SK_SYMPTOMS[6])) && has(SK_SYMPTOMS[7])) { A.patterns.push('چربی و منافذ کنار هم'); await say('SK-P2', {kind: 'payoff', auto: false}); }
+  if (has(SK_SYMPTOMS[8])) { A.patterns.push('رفتار متفاوت نواحی صورت'); await say('SK-P3', {kind: 'payoff', auto: false}); }
+  if (has(SK_SYMPTOMS[3]) || has(SK_SYMPTOMS[4])) { A.patterns.push('واکنش‌پذیری به محرک‌ها'); await say('SK-P4', {kind: 'payoff', auto: false}); }
+  if (!none) A.freq = await single('SK03', ['خیلی کم','گاهی','بیشتر روزها','تقریباً همیشه'], {layout: 'scale', pre: ack(neutralOf(A.symptoms))});
+  await say('SK04a', {auto: true});
+  A.priority = await single('SK04', SK_PRIOR);
+  A.secondary = await multi('SK04b', SK_PRIOR.filter(p => p !== A.priority), {max: 3, skip: 'نه، همین'});
+  const soft = ['آبرسانی','تغذیه و تقویت پوست','پاکسازی مؤثرتر','جوان‌سازی'];
+  if (!soft.includes(A.priority)) A.duration = await single('SK05', DURATION, {pre: ack(neutralOf(A.priority))});
+  if (A.duration === 'بیشتر از ۲ سال' && A.freq === 'تقریباً همیشه') await safety();   // doctor question earlier
+  A.routine = await multi('SK06', ['شوینده','مرطوب‌کننده / آبرسان','ضدآفتاب','ضدجوش','ضدلک','ضدچروک','لایه‌بردار / اسکراب','ماسک','محصولات دست‌ساز','تقریباً هیچ‌کدوم'], {exclusive: 'تقریباً هیچ‌کدوم', pre: ack()});
+  if (!A.routine.includes('تقریباً هیچ‌کدوم')) A.cleanser = await freeText('SK06a', 'مثلاً ژل شست‌وشو؛ اسم برند لازم نیست');
+  if (A.routine.includes('محصولات دست‌ساز')) A.handmade = await single('SK06b', ['خودم درست می‌کنم','از فرد/فروشنده می‌گیرم','ترکیبی','ترجیح می‌دم توضیح ندم']);
+  await safety();
+}
+
+/* ---------- route: hair ---------- */
+async function routeHair() {
+  const A = S.a.hair = {};
+  await say('HR00a', {kind: 'payoff', cta: 'ادامه'});
+  A.primary = await single('HR01', ['ریزش','چربی پوست سر','خشکی پوست سر','شوره','خارش','رشد کم','خشکی و وز ساقه','ضعف و نازکی','موخوره','تقویت مژه یا ابرو','فعلاً فقط می‌خوام روتینم رو بررسی کنم'], {pre: 'HR00b'});
+  const scalp = async () => {
+    A.scalp = await multi('HR02', ['خشکی پوست سر','چربی پوست سر','خارش','پوسته خشک','شوره چرب','اگزما یا پسوریازیس تشخیص‌داده‌شده/مشکوک','رشد موها کند به نظر می‌رسه','ریزش مو','نیاز به تقویت مژه و ابرو','هیچ‌کدوم'], {exclusive: 'هیچ‌کدوم', pre: ack(neutralOf(A.primary))});
+    if (A.scalp.some(s => s.startsWith('اگزما'))) { S.flags.scalpCondition = true; await say('HR02e', {kind: 'safety'}); }
+    if (A.scalp.includes('خشکی پوست سر') && A.scalp.includes('چربی پوست سر')) await say('HR02d');
+  };
+  const shaft = async () => {
+    A.shaft = await multi('HR03', ['خشک یا وز','نازک و ضعیف','شکننده','رنگ‌شده','دکلره‌شده','کراتینه‌شده','موخوره','زیاد از اتومو یا سشوار استفاده می‌کنم','فر یا مستعد گره خوردنه','مشکل خاصی ندارم'], {exclusive: 'مشکل خاصی ندارم', pre: ack()});
+    if (A.shaft.includes('دکلره‌شده') && A.shaft.includes('زیاد از اتومو یا سشوار استفاده می‌کنم') && A.shaft.includes('شکننده')) await say('HR-P1', {kind: 'payoff', auto: false});
+  };
+  const lash = A.primary === 'تقویت مژه یا ابرو';
+  if (['خشکی و وز ساقه', 'موخوره'].includes(A.primary)) { await shaft(); await scalp(); }
+  else if (lash) { await scalp(); }
+  else { await scalp(); await shaft(); }
+  A.routine = await multi('HR04', ['نرم‌کننده / حالت‌دهنده','ضدریزش','ضدشوره','ماسک مو داخل حمام','ماسک مو خارج حمام','روغن مو','سرم مو','تقریباً هیچ‌کدوم'], {exclusive: 'تقریباً هیچ‌کدوم', pre: ack()});
+  if (A.routine.includes('ضدریزش') && A.primary === 'ریزش') A.antiFallFor = await single('HR04a', ['کمتر از ۱ ماه','۱ تا ۳ ماه','بیشتر از ۳ ماه','یادم نیست']);
+  if (!lash) A.wash = await single('HR05', ['هر روز','یک روز در میان','۲ تا ۳ بار در هفته','هفته‌ای یک بار یا کمتر','برنامه ثابتی ندارم'], {pre: ack()});
+  if (A.primary === 'ریزش' || (A.scalp || []).includes('ریزش مو')) {
+    A.fallWhen = await single('HR06', ['موقع حمام','موقع شانه کردن','روی بالش/لباس','تقریباً در طول روز','دقیق نمی‌دونم']);
+    A.fallSince = await single('SK05', DURATION, {qText: 'تقریباً از کی بیشتر متوجهش شدی؟'});
+  }
+  if (lash || (A.scalp || []).includes('نیاز به تقویت مژه و ابرو')) A.lash = await single('HR07', ['ابرو','مژه','هر دو']);
+  await safety();
+}
+
+/* ---------- route: body ---------- */
+async function routeBody() {
+  const A = S.a.body = {};
+  await say('BD00a', {kind: 'payoff', cta: 'ادامه'});
+  A.items = await multi('BD01', ['خشکی پوست بدن','چربی یا جوش بدن','لک پوستی','تیرگی زیر بغل یا کشاله ران','خشکی و ترک پا','افتادگی یا خطوط پوست بدن','هیچ‌کدوم'], {exclusive: 'هیچ‌کدوم', pre: 'BD00b'});
+  if (A.items.includes('هیچ‌کدوم')) { A.keep = await single('BD01n', ['بله', 'خیر']); return; }
+  if (A.items.includes('چربی یا جوش بدن')) await safety();
+  if (A.items.some(i => ['خشکی پوست بدن','چربی یا جوش بدن','لک پوستی','افتادگی یا خطوط پوست بدن'].includes(i)))
+    A.area = await single('BD02', ['دست‌ها','پاها','پشت/شانه','ناحیه زیر بغل','ناحیه کشاله ران','چند بخش','ترجیح می‌دم مشخص نکنم'], {pre: ack(false)});
+  if (A.items.some(i => /جوش|لک|تیرگی|ترک/.test(i))) A.since = await single('SK05', DURATION, {qText: 'تقریباً از کی بیشتر متوجهش شدی؟'});
+  A.routine = await multi('BD04', ['شوینده بدن','مرطوب‌کننده/لوسیون','اسکراب/لایه‌بردار','محصول تخصصی','تقریباً هیچ‌کدوم'], {exclusive: 'تقریباً هیچ‌کدوم', pre: ack()});
+}
+
+/* ---------- route: oral ---------- */
+async function routeOral() {
+  const A = S.a.oral = {};
+  A.items = await multi('OR01', ['سفیدتر شدن دندان‌ها','التهاب لثه','بوی بد دهان','التهاب گلو','کاهش پلاک و پوسیدگی','حساسیت دندان یا لثه','فقط می‌خوام روتینم رو بررسی کنم'], {exclusive: 'فقط می‌خوام روتینم رو بررسی کنم', pre: 'OR00'});
+  if (A.items.some(i => ['التهاب لثه','التهاب گلو','حساسیت دندان یا لثه'].includes(i))) { S.flags.oralSensitive = true; await say('OR-S', {kind: 'safety'}); }
+  if (A.items.length > 1) A.top = await single('OR02', A.items, {pre: ack(false)});
+  else A.top = A.items[0];
+  A.routine = await multi('OR03', ['مسواک روزانه','نخ دندان','دهان‌شویه','محصول سفیدکننده','روتین ثابتی ندارم'], {exclusive: 'روتین ثابتی ندارم', pre: ack()});
+}
+
+/* ---------- route: general ---------- */
+async function routeGeneral() {
+  const A = S.a.general = {};
+  A.topic = await single('GN01', ['انرژی بیشتر در روز','مراقبت از مفاصل و استخوان‌ها','دغدغه مربوط به پوکی استخوان','درد مفصل یا استخوان','کنترل اشتها','کمتر شدن ریزه‌خواری','مراقبت عمومی و سبک زندگی','موضوع مربوط به کبد/پاکسازی'], {pre: 'GN00'});
+  if (/درد|پوکی/.test(A.topic)) S.flags.generalSensitive = true;
+  A.when = await single('GN02', ['صبح‌ها','وسط روز','عصر/شب','متغیره','ترجیح می‌دم مشخص نکنم'], {pre: ack(neutralOf(A.topic))});
+}
+
+/* ---------- insights (built only from the person's own answers) ---------- */
+function insights(key) {
+  const A = S.a[key] || {}, out = [];
+  const list = v => (v || []).filter(x => !/^(هیچ‌کدوم|تقریباً هیچ‌کدوم|مشکل خاصی ندارم|روتین ثابتی ندارم)$/.test(x));
+  if (key === 'skin') {
+    out.push(['اولویت تو', A.priority]);
+    out.push(['چیزی که در جواب‌ها دیده شد', A.patterns && A.patterns.length ? A.patterns.join('، ') : 'برای الگوی پوست، جواب‌هات هنوز قطعی نیستن.']);
+    const r = list(A.routine);
+    out.push(['روتین فعلی', r.length === 0 ? 'خیلی ساده است' : r.length < 3 ? 'قابل تکمیل است' : 'پایه دارد']);
+    if (!(A.routine || []).includes('ضدآفتاب')) out.push(['یک نکته', 'محافظت روزانه در روتین فعلی‌ات دیده نشد']);
+  }
+  if (key === 'hair') {
+    out.push(['دغدغه اصلی', A.primary]);
+    const sc = list(A.scalp);
+    if (sc.length) out.push(['پوست سر', sc.includes('خشکی پوست سر') && sc.includes('چربی پوست سر') ? 'پوست سرت نشانه‌های متفاوتی گزارش شده؛ بهتره مشاور دقیق‌تر مرورش کنه.' : sc.join('، ')]);
+    const sh = list(A.shaft);
+    if (sh.length) out.push(['ساقه', sh.includes('فر یا مستعد گره خوردنه') ? sh.join('، ') + ' — مدیریت رطوبت و گره‌خوردگی یکی از محورهای روتین توئه' : sh.join('، ')]);
+    out.push(['روتین', list(A.routine).join('، ') || 'خیلی ساده است']);
+    if ((A.scalp || []).includes('چربی پوست سر') && A.wash === 'هفته‌ای یک بار یا کمتر') out.push(['یک نکته', 'فاصله شست‌وشو و چربی پوست سر بهتره با مشاور مرور بشه']);
+  }
+  if (key === 'body') {
+    if ((A.items || []).includes('هیچ‌کدوم')) out.push(['اولویت', A.keep === 'بله' ? 'حفظ روتین فعلی' : 'مورد خاصی گفته نشد']);
+    else out.push(['اولویت', list(A.items).join('، ')]);
+    if (A.area && A.area !== 'ترجیح می‌دم مشخص نکنم') out.push(['ناحیه', A.area]);
+    if (A.routine) out.push(['روتین فعلی', list(A.routine).join('، ') || 'خیلی ساده است']);
+  }
+  if (key === 'oral') {
+    out.push(['اولویت اعلام‌شده', A.top]);
+    out.push(['روتین موجود', list(A.routine).join('، ') || 'روتین ثابتی گفته نشد']);
+  }
+  if (key === 'general') {
+    out.push(['اولویت عمومی تو', A.topic]);
+    out.push(['یک نکته', 'برای این بخش، پیشنهاد اولیه باید محافظه‌کارانه و متناسب با اطلاعات تکمیلی باشه.']);
+  }
+  return out.slice(0, 4);
+}
+const needsReview = key => S.flags.allergy || S.flags.allergyUnknown || S.flags.recentDoctor ||
+  (key === 'hair' && S.flags.scalpCondition) || (key === 'oral' && S.flags.oralSensitive) || (key === 'general' && S.flags.generalSensitive);
+const insightList = key => `<ul class="insights">${insights(key).map(([k, v]) => `<li><span>${esc(k)}</span><strong>${esc(v)}</strong></li>`).join('')}</ul>`;
+
+/* ---------- completion of one route ---------- */
+async function completion(key) {
+  setRoute(key); progress(1); sfx('notify-soft', .3);
+  const endId = {skin:'SK-END', hair:'HR-END', body:'BD-END', oral:'OR-END', general:'GN-END'}[key];
+  const all = countDone() === 5;
+  render(`<div class="done-head"><svg class="loop" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"/><path d="M14 23l6 6 11-12"/></svg>
+      <div><h2 class="q" style="font-size:24px">${esc(ROUTES[key].name)} ✓</h2><p class="helper">این بخش رو شناختیم.</p></div></div>
+    ${needsReview(key) ? '<span class="badge">نیاز به بررسی دقیق‌تر مشاور</span>' : ''}
+    ${insightList(key)}
+    <div class="actions"><button class="btn" type="button" id="res">${all ? 'تصویر کامل من رو ببینم' : 'دیدن نتیجه فعلی من'}</button>${all ? '' : '<button class="btn ghost" type="button" id="more">+ یه بخش دیگه رو هم بررسی کنیم</button>'}</div>`);
+  let left = false;
+  play(endId);
+  return new Promise(r => {
+    $('#res').onclick = () => { left = true; tap(); stopTalk(); r('result'); };
+    if (!all) $('#more').onclick = () => { left = true; tap(); stopTalk(); r('hub'); };
+  });
+}
+
+/* ---------- hub ---------- */
+async function hub(first) {
+  curRoute = null; setRoute(null); progress(countDone() / 5);
+  const n = countDone();
+  const status = k => S.status[k] === 'done' ? 'ویرایش پاسخ‌ها' : S.status[k] === 'progress' ? 'ادامه' : '';
+  render(`<h2 class="q">${n ? 'چیز دیگه‌ای هم هست که دوست داری بررسی کنیم؟' : 'دوست داری از کجا شروع کنیم؟'}</h2>
+    <p class="helper">${n >= 2 ? 'تا اینجا چند تکه از روتینت رو کنار هم داریم.' : n ? 'این بخش رو شناختیم.' : 'چیزی رو انتخاب کن که این روزها بیشتر توجهت رو گرفته.'}</p>
+    <div class="routes" id="routes">${Object.entries(ROUTES).map(([k, r]) => `<button class="route ${done(k) ? 'done' : ''}" type="button" style="--c:${r.c}" data-k="${k}"><b>${esc(r.name)}</b>${status(k) ? `<small>${status(k)}</small>` : ''}</button>`).join('')}</div>
+    ${n ? '' : `<p class="helper">${esc(text('V09'))}</p>`}
+    ${n ? `<div class="actions"><button class="btn ${n === 5 ? '' : 'ghost'}" type="button" id="res">${n === 5 ? 'تصویر کامل من رو ببینم' : 'دیدن نتیجه فعلی من'}</button></div>` : ''}`);
+  let picked = false;
+  playSeq(n ? [n >= 2 ? 'HB2' : 'HB1'] : ['V08', 'V09'], () => picked);
+  return new Promise(res => {
+    panel.querySelectorAll('.route').forEach(b => b.onclick = async () => {
+      if (picked) return; picked = true; tap(); stopTalk();
+      $('#routes').classList.add('chosen'); b.classList.add('picked');
+      document.documentElement.style.setProperty('--route', ROUTES[b.dataset.k].c);
+      sfx('soft-short', .25); await sleep(300); res(b.dataset.k);
+    });
+    const rb = $('#res'); if (rb) rb.onclick = () => { picked = true; tap(); stopTalk(); res('result'); };
+  });
+}
+
+/* ---------- synthesis + result ---------- */
+async function synthesis() {
+  const doneKeys = Object.keys(ROUTES).filter(done);
+  curRoute = null;
+  if (doneKeys.length === 0) return;
+  const one = doneKeys.length === 1;
+  render(`<div class="synth ${one ? 'one' : ''}" id="synth">${doneKeys.map((k, i) => `<i style="--c:${ROUTES[k].c};--y:${18 + i * (84 / Math.max(1, doneKeys.length))}%"></i>`).join('')}</div>
+    <p class="q" id="syl" style="font-size:22px">${esc(text(one ? 'SY1' : 'SY2'))}</p>
+    <div class="actions"><button class="link" type="button" id="skip">رد شدن</button></div>`);
+  let skipped = false;
+  const skip = new Promise(r => $('#skip').onclick = () => { skipped = true; tap(); stopTalk(); r(); });
+  const run = (async () => {
+    if (one) { await play('SY1'); return; }
+    await play('SY2'); if (skipped) return;
+    $('#syl').textContent = text('SY3'); $('#synth').classList.add('join'); await play('SY3'); if (skipped) return;
+    $('#syl').textContent = text('SY4'); sfx('swell-bell', .25); await play('SY4');
+  })();
+  await Promise.race([run, skip]); await sleep(300);
+}
+
+async function result() {
+  await synthesis();
+  setRoute(null);
+  const doneKeys = Object.keys(ROUTES).filter(done);
+  const safetyIds = [];
+  if (S.flags.allergy || S.flags.allergyUnknown) safetyIds.push('RS-A');
+  if (S.flags.recentDoctor) safetyIds.push('RS-D');
+  render(`<h2 class="q">${esc(text('RS1'))}</h2>
+    ${safetyIds.map(id => `<div class="note safety"><p>${esc(text(id))}</p></div>`).join('')}
+    ${doneKeys.length ? doneKeys.map(k => `<article class="rcard" style="--c:${ROUTES[k].c}"><h3>${esc(ROUTES[k].name)}</h3>${needsReview(k) ? '<span class="badge">نیاز به بررسی دقیق‌تر مشاور</span>' : ''}${insightList(k)}</article>`).join('') : '<p class="helper">برای این بخش هنوز داده کافی نداریم.</p>'}
+    <p class="disclaimer">${esc(text('RS-X'))}</p>
+    <div class="note"><p>${esc(text('CV1'))}</p>
+      <div class="actions"><button class="btn" type="button" id="yes">روتین پیشنهادی من رو آماده کن</button><button class="btn ghost" type="button" id="no">فعلاً همین نتیجه کافیه</button></div>
+      <div id="later"></div></div>`);
+  let leaving = false;
+  playSeq(['RS1', ...safetyIds, 'RS-X', 'CV1'], () => leaving);
+  return new Promise(res => {
+    $('#yes').onclick = () => { leaving = true; tap(); stopTalk(); res('lead'); };
+    $('#no').onclick = () => {
+      tap(); stopTalk(); leaving = true;
+      const rest = Object.keys(ROUTES).filter(k => !done(k));
+      $('#later').innerHTML = `<p class="helper">${esc(text('CV2'))}</p>${rest.length ? `<div class="routes">${rest.map(k => `<button class="route" type="button" style="--c:${ROUTES[k].c}" data-k="${k}"><b>${esc(ROUTES[k].name)}</b></button>`).join('')}</div>` : ''}`;
+      $('#later').querySelectorAll('.route').forEach(b => b.onclick = () => { tap(); res({route: b.dataset.k}); });
+      play('CV2');
+    };
+  });
+}
+
+/* ---------- lead capture ---------- */
+const toLatin = s => s.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+function normPhone(raw) {
+  let p = toLatin(raw).replace(/[\s\-()]/g, '');
+  if (p.startsWith('+98')) p = '0' + p.slice(3); else if (p.startsWith('0098')) p = '0' + p.slice(4); else if (p.startsWith('98') && p.length === 12) p = '0' + p.slice(2); else if (p.startsWith('9') && p.length === 10) p = '0' + p;
+  return /^09\d{9}$/.test(p) ? p : null;
+}
+async function lead() {
+  curRoute = null; setRoute(null);
+  render(`<h2 class="q">${esc(text('LD1'))}</h2>
+    <form id="lf" class="panel" novalidate>
+      <div class="field"><label for="ln">نام</label><input id="ln" autocomplete="given-name" maxlength="60" placeholder="مثلاً مریم"><span class="err" id="lne"></span></div>
+      <div class="field"><label for="lp">شماره موبایل</label><input id="lp" inputmode="tel" dir="ltr" autocomplete="tel" maxlength="20" placeholder="09xx xxx xxxx"><span class="err" id="lpe"></span>
+        <p class="helper">فقط برای ادامه همین مشاوره و طبق انتخاب خودت استفاده می‌شه.</p></div>
+      <div class="consents">
+        <label class="consent"><input type="checkbox" id="cc"><span>${esc(CONSENT.contact)}</span></label>
+        <label class="consent"><input type="checkbox" id="ch"><span>${esc(CONSENT.health)}</span></label>
+      </div>
+      <p class="form-msg" id="lfe" role="alert"></p>
+      <div class="actions"><button class="btn" type="submit" id="ls">ثبت</button></div>
+    </form>`);
+  play('LD1');
+  return new Promise(res => {
+    $('#lf').addEventListener('submit', async e => {
+      e.preventDefault(); stopTalk();
+      const name = $('#ln').value.trim(), phone = normPhone($('#lp').value);
+      const contactConsent = $('#cc').checked, healthConsent = $('#ch').checked;
+      $('#lne').textContent = name ? '' : text('LD2');
+      $('#lpe').textContent = phone ? '' : text('LD3');
+      const msg = $('#lfe'); msg.className = 'form-msg'; msg.textContent = '';
+      if (!name) { play('LD2'); $('#ln').focus(); return; }
+      if (!phone) { play('LD3'); $('#lp').focus(); return; }
+      if (!contactConsent || !healthConsent) { msg.textContent = CONSENT.missing; $(contactConsent ? '#ch' : '#cc').focus(); return; }
+      const b = $('#ls'); b.disabled = true; b.textContent = 'در حال ثبت…'; tap();
+      const payload = leadPayload(name, phone);
+      const r = LEAD_URL ? await sendLead(payload) : (await sleep(700), 'ok');
+      if (r === 'retry') {        // §35: keep it, tell the person calmly, retry in the background
+        S.outbox = payload; save(); retryOutbox();
+        msg.className = 'form-msg calm'; msg.textContent = 'اتصال یه لحظه قطع شد؛ جوابت پیش ما می‌مونه و دوباره تلاش می‌کنیم.';
+        await sleep(2600);
+      } else if (r !== 'ok') {
+        msg.textContent = r === 'no_referrer' ? 'ثبت انجام نشد؛ لطفاً از لینکی که مشاورت برات فرستاده دوباره وارد شو. جواب‌هات سر جاشون می‌مونن.' : r === 'invalid' ? text('LD3') : 'ثبت انجام نشد؛ یه بار دیگه امتحان کن.';
+        b.disabled = false; b.textContent = 'ثبت'; return;
+      }
+      S.lead = {name, phone: phone.slice(0, 4) + '****' + phone.slice(-3), at: new Date().toISOString(), consent: {contact: true, health: true, v: CONSENT.v}}; save();
+      res();
+    });
+  });
+}
+
+/* consent copy (master prompt §9, §25, §31): never pre-checked; both are required by product-lead */
+const CONSENT = {
+  v: 'routine-sara-2026-10-17.v1',
+  contact: 'موافقم مشاوری که این لینک رو برام فرستاده، برای ادامه‌ی همین مشاوره با من تماس بگیره یا پیام بده.',
+  health: 'موافقم خلاصه‌ی پاسخ‌هام درباره‌ی پوست، مو و سلامتم، فقط برای همین مشاوره در اختیار مشاورم قرار بگیره.',
+  missing: 'برای ثبت، لازمه هر دو مورد رو تأیید کنی؛ بدون رضایت خودت با تو تماسی گرفته نمی‌شه.',
+};
+
+/* what the consultant receives: route name + the person's own stated priority; no free text (§31 data minimization) */
+function leadSummaries() {
+  const pick = {
+    skin: A => A.priority, hair: A => A.primary, oral: A => A.top, general: A => A.topic,
+    body: A => (A.items || []).includes('هیچ‌کدوم') ? (A.keep === 'بله' ? 'حفظ روتین فعلی' : 'مورد خاصی گفته نشد') : (A.items || []).join('، '),
+  };
+  const out = Object.keys(ROUTES).filter(done).map(k => ({title: ROUTES[k].name, priority: pick[k](S.a[k] || {}) || ''}));
+  if (Object.keys(ROUTES).filter(done).some(needsReview)) out.push({title: 'یادداشت', priority: 'نیاز به بررسی دقیق‌تر مشاور'});
+  return out.slice(0, 8);
+}
+function leadPayload(name, phone) {
+  if (!S.leadId) S.leadId = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+  return {referralCode: REF || S.ref || '', name, phone, sourceLeadId: S.leadId, summaries: leadSummaries(), contactConsent: true, healthConsent: true};
+}
+/* 'ok' | 'retry' (network / server trouble) | 'invalid' | 'no_referrer' | 'error' */
+async function sendLead(payload) {
+  try {
+    const r = await fetch(LEAD_URL, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(payload)});
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.ok) return 'ok';
+    if (r.status >= 500 || r.status === 429) return 'retry';
+    return j.error === 'no_referrer' || j.error === 'invalid' ? j.error : 'error';
+  } catch (e) { return 'retry'; }
+}
+let outboxTimer = null;
+function retryOutbox(delay = 4000) {
+  if (!LEAD_URL || !S.outbox || outboxTimer) return;
+  outboxTimer = setTimeout(async () => {
+    outboxTimer = null;
+    const r = await sendLead(S.outbox);
+    if (r === 'retry') return retryOutbox(Math.min(delay * 2, 120000));
+    S.outbox = null; save();   // sent, or rejected for good: stop retrying
+  }, delay);
+}
+
+async function finale() {
+  S.lead.contact = await single('LD4', ['تماس','پیام','فرقی نداره']);
+  await say('OB1', {cta: 'باشه'});
+  S.other = await single('OB2', ['آره، کنجکاوم','فعلاً فقط محصول/روتین']);
+  if (S.other !== 'آره، کنجکاوم') await say('OB3');
+  save();
+  const doneKeys = Object.keys(ROUTES).filter(done);
+  const open = Object.keys(ROUTES).filter(k => S.status[k] === 'progress');
+  sfx('notify-soft', .3); progress(1);
+  render(`<div class="done-head"><svg class="loop" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"/><path d="M14 23l6 6 11-12"/></svg><h2 class="q">تمام شد.</h2></div>
+    <p class="helper" style="font-size:17px;color:var(--text)">${esc(text('CF2'))}</p>
+    <ul class="insights">${doneKeys.map(k => `<li style="border-inline-start:3px solid ${ROUTES[k].c}"><strong>${esc(ROUTES[k].name)} ✓</strong></li>`).join('')}</ul>
+    ${open.length ? `<div class="note"><p>${esc(text('CF3'))}</p><div class="actions">${open.map(k => `<button class="btn ghost" type="button" data-k="${k}">${esc(ROUTES[k].name)}</button>`).join('')}</div></div>` : ''}
+    <div class="actions"><button class="link" type="button" id="again">شروع دوباره</button></div>`);
+  playSeq(['CF1', 'CF2', ...(open.length ? ['CF3'] : [])]);
+  return new Promise(res => {
+    panel.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { tap(); stopTalk(); res({route: b.dataset.k}); });
+    $('#again').onclick = () => { tap(); stopTalk(); res('restart'); };
+  });
+}
+
+/* ---------- intro ---------- */
+const INTRO = [
+  {id: 'V01', light: true},
+  {id: 'V02', img: '08-wash-face.jpg'},
+  {id: 'V03', img: '09-hair-oil.jpg'},
+  {id: 'V04', img: '10-hand-cream.jpg'},
+  {id: 'V05', img: '11-reveal.jpg', reveal: true},
+  {id: 'V06', sub: true},
+  {id: 'V07', cta: true},
+];
+async function intro() {
+  document.body.classList.add('intro', 'dark');
+  let skipped = false, ctaHit;
+  const ctaP = new Promise(r => ctaHit = r);
+  for (const s of INTRO) {
+    if (skipped) break;
+    if (s.reveal) document.body.classList.remove('dark');
+    const visual = s.light ? '<div class="light" aria-hidden="true"></div>' : s.img ? `<div class="intro-img"><img src="media/img/${s.img}" alt=""></div>` : '';
+    panel.innerHTML = '';
+    app.querySelector('.intro-stage')?.remove();
+    const st = document.createElement('div'); st.className = 'intro-stage fade';
+    st.innerHTML = `${visual}<p class="${s.sub ? 'intro-sub' : 'intro-line'}">${esc(text(s.id))}</p>
+      ${s.cta ? '<button class="btn" type="button" id="start">روتین من رو بررسی کن</button>' : '<button class="link" type="button" id="skip">رد شدن</button>'}`;
+    app.appendChild(st);
+    if (s.cta) { $('#start').onclick = () => { tap(); stopTalk(); ctaHit(); }; }
+    else $('#skip').onclick = () => { skipped = true; tap(); stopTalk(); };
+    sfx('soft-medium', .18);
+    await play(s.id);
+    if (!s.cta && !skipped) await sleep(450);
+  }
+  if (!skipped) await ctaP;
+  document.body.classList.remove('intro', 'dark');
+  app.querySelector('.intro-stage')?.remove();
+}
+
+async function profile() {
+  await say('PF00', {cta: 'باشه'});
+  S.profile.age = await single('PF01', ['زیر ۱۸','۱۸ تا ۲۴','۲۵ تا ۳۴','۳۵ تا ۴۴','۴۵ تا ۵۴','۵۵ به بالا']);
+  S.profile.gender = await single('PF02', ['خانم','آقا','ترجیح می‌دم نگم'], {pre: ack()});
+  save();
+}
+
+/* ---------- main flow ---------- */
+async function journey(resume) {
+  if (REF) { S.ref = REF; save(); }
+  if (!resume) { await intro(); await profile(); }
+  let next = 'hub';
+  for (;;) {
+    if (next === 'hub') next = await hub();
+    if (ROUTES[next]) next = await runRoute(next);
+    if (next === 'result') {
+      const r = await result();
+      if (r && r.route) { next = r.route; continue; }
+      if (!S.lead) await lead();
+      const f = await finale();
+      if (f === 'restart') { S = fresh(); save(); return boot(); }
+      if (f && f.route) { next = f.route; continue; }
+    }
+  }
+}
+
+function boot() {
+  document.body.classList.add('intro', 'dark');
+  const prev = load();
+  if (LEAD_URL && prev && prev.outbox) sendLead(prev.outbox).then(r => {   // a lead queued in an earlier visit
+    if (r === 'retry') return;
+    const cur = load() || {}; if (cur.outbox && cur.outbox.sourceLeadId === prev.outbox.sourceLeadId) { cur.outbox = null; try { localStorage.setItem(KEY, JSON.stringify(cur)); } catch (e) {} }
+    if (S.outbox && S.outbox.sourceLeadId === prev.outbox.sourceLeadId) S.outbox = null;
+  });
+  const resumable = prev && prev.profile && prev.profile.age;
+  app.querySelector('.boot')?.remove(); app.querySelector('.intro-stage')?.remove();
+  panel.innerHTML = '';
+  const b = document.createElement('div'); b.className = 'boot fade';
+  b.innerHTML = `<div class="light" aria-hidden="true" style="margin-block:0 8px"></div><h1>روتین من</h1>
+    <p>یه گفت‌وگوی کوتاه با سارا درباره‌ی پوست، مو و مراقبت روزانه‌ات. صدای دستگاهت رو روشن کن.</p>
+    ${resumable ? `<p>${esc(text('V00'))}</p><div class="actions" style="justify-content:center"><button class="btn" type="button" id="cont">ادامه</button><button class="link" type="button" id="new">از اول</button></div>`
+                : '<button class="btn" type="button" id="new">شروع</button>'}`;
+  app.appendChild(b);
+  const startAudio = () => { music.volume = 0; music.play().catch(() => {}); setMusic(MUSIC_BED); idleV.play().catch(() => {}); };
+  $('#new').onclick = () => { startAudio(); tap(); b.remove(); S = fresh(); save(); journey(false); };
+  if (resumable) {
+    $('#cont').onclick = () => { startAudio(); tap(); b.remove(); S = prev; document.body.classList.remove('intro', 'dark'); journey(true); };
+  }
+}
+
+$('#mute').onclick = () => {
+  muted = !muted;
+  $('#mute').textContent = muted ? 'صدا: خاموش' : 'صدا: روشن';
+  $('#mute').setAttribute('aria-pressed', String(muted));
+  music.muted = muted; talkV.muted = muted;
+};
+/* standby: a few loops that all start and end on the same resting frame; one is picked at random each time */
+const IDLES = ['IDLE1', 'IDLE2', 'IDLE3'].filter(i => HAVE.v.includes(i));
+let idleCur = null;
+function nextIdle() {
+  if (!IDLES.length) return;
+  const pool = IDLES.length > 1 ? IDLES.filter(i => i !== idleCur) : IDLES;
+  idleCur = pool[Math.floor(Math.random() * pool.length)];
+  idleV.src = `media/v/${idleCur}.mp4`;
+  idleV.play().catch(() => {});
+}
+idleV.onended = nextIdle;
+if (IDLES.length) { idleCur = IDLES[Math.floor(Math.random() * IDLES.length)]; idleV.src = `media/v/${idleCur}.mp4`; }
+boot();
+</script>

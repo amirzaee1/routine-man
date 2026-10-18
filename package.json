@@ -1,0 +1,13 @@
+{
+  "name": "routine-sara",
+  "version": "1.0.0",
+  "private": true,
+  "description": "«روتین من» با سارا — سایت تعاملی + proxy ارسال لید به ایجنت هوشمند",
+  "type": "module",
+  "main": "server.mjs",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.mjs",
+    "local": "node --env-file-if-exists=.env server.mjs"
+  }
+}
