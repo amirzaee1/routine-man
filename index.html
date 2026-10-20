@@ -252,7 +252,7 @@ const MUSIC_BED = .16, MUSIC_DUCK = .12;
 let curStop = null, seqGen = 0;
 function haltCurrent() { if (curStop) curStop(); }
 function stopTalk() { seqGen++; haltCurrent(); }
-function play(id) {
+function play(id, rate = 1) {
   haltCurrent();
   if (!id || (!HAVE.v.includes(id) && !HAVE.a.includes(id))) return Promise.resolve();
   return new Promise(resolve => {
@@ -272,6 +272,7 @@ function play(id) {
       el = new Audio(`media/a/${id}.mp3`);
     }
     el.muted = muted; el.currentTime = 0;
+    el.defaultPlaybackRate = rate; el.playbackRate = rate;  // the intro plays faster; pitch is kept by the browser
     el.onended = finish; el.onerror = finish;
     saraCol.classList.add('talking'); setMusic(MUSIC_DUCK);
     const p = el.play(); if (p) p.catch(finish);
@@ -749,6 +750,7 @@ async function finale() {
 }
 
 /* ---------- intro ---------- */
+const INTRO_RATE = 1.5;  // Amir: the opening, up to «روتین من رو بررسی کن», 50% faster
 const INTRO = [
   {id: 'V01', light: true},
   {id: 'V02', img: '08-wash-face.jpg'},
@@ -775,8 +777,8 @@ async function intro() {
     if (s.cta) { $('#start').onclick = () => { tap(); stopTalk(); ctaHit(); }; }
     else $('#skip').onclick = () => { skipped = true; tap(); stopTalk(); };
     sfx('soft-medium', .11);
-    await play(s.id);
-    if (!s.cta && !skipped) await sleep(450);
+    await play(s.id, INTRO_RATE);
+    if (!s.cta && !skipped) await sleep(300);
   }
   if (!skipped) await ctaP;
   document.body.classList.remove('intro', 'dark');
