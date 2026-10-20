@@ -750,7 +750,7 @@ async function finale() {
 }
 
 /* ---------- intro ---------- */
-const INTRO_RATE = 1.5;  // Amir: the opening, up to «روتین من رو بررسی کن», 50% faster
+const INTRO_RATE = 1.35;  // Amir: the opening, up to «روتین من رو بررسی کن», 35% faster
 const INTRO = [
   {id: 'V01', light: true},
   {id: 'V02', img: '08-wash-face.jpg'},
@@ -778,7 +778,7 @@ async function intro() {
     else $('#skip').onclick = () => { skipped = true; tap(); stopTalk(); };
     sfx('soft-medium', .11);
     await play(s.id, INTRO_RATE);
-    if (!s.cta && !skipped) await sleep(300);
+    if (!s.cta && !skipped) await sleep(330);
   }
   if (!skipped) await ctaP;
   document.body.classList.remove('intro', 'dark');
