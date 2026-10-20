@@ -252,7 +252,8 @@ const MUSIC_BED = .16, MUSIC_DUCK = .12;
 let curStop = null, seqGen = 0;
 function haltCurrent() { if (curStop) curStop(); }
 function stopTalk() { seqGen++; haltCurrent(); }
-function play(id, rate = 1) {
+const TALK_RATE = 1.12;  // Amir: every line after the opening, 12% faster
+function play(id, rate = TALK_RATE) {
   haltCurrent();
   if (!id || (!HAVE.v.includes(id) && !HAVE.a.includes(id))) return Promise.resolve();
   return new Promise(resolve => {
