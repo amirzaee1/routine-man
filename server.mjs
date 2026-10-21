@@ -16,7 +16,7 @@ const SECRET = env('PRODUCT_LEAD_INGEST_SECRET');
 const AGENT = env('AGENT_BASE_URL').replace(/\/+$/, '');
 // demo unless explicitly turned off AND the server can actually forward
 const DEMO = env('DEMO_MODE').toLowerCase() !== 'false' || !SECRET || !AGENT;
-const REF_RE = /^T[A-Z0-9]{9}$/;
+const REF_RE = /^(?:T[A-Z0-9]{9}|NEXA-\d{4}(?:-\d{2}){5}-[2-9A-HJ-NP-Z]{8})$/;   // T… code, or the member's NEXA code («مشاور زنده» link in the NEXA app)
 const DEFAULT_REF = env('DEFAULT_REFERRAL_CODE').toUpperCase();
 // other sites allowed to post leads here, e.g. the GitHub Pages copy: https://amirzaee1.github.io
 const ALLOWED_ORIGINS = env('ALLOWED_ORIGINS').split(',').map(o => o.trim().replace(/\/+$/, '')).filter(Boolean);
@@ -37,7 +37,7 @@ const clip = (v, n) => String(v ?? '').trim().slice(0, n);
 function buildPayload(b) {
   const phone = normPhone(b.phone);
   const name = clip(b.name, 100);
-  const ref = clip(b.referralCode, 20).toUpperCase();
+  const ref = clip(b.referralCode, 40).toUpperCase();
   const referralCode = REF_RE.test(ref) ? ref : (REF_RE.test(DEFAULT_REF) ? DEFAULT_REF : '');
   const summaries = (Array.isArray(b.summaries) ? b.summaries : []).slice(0, 8)
     .map(s => ({ title: clip(s?.title, 60), priority: clip(s?.priority, 200) }))
