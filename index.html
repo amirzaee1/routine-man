@@ -220,7 +220,8 @@ const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null'
 
 /* ---------- referral (?ref=CODE, master prompt §26) ----------
    Read once on entry and kept in sessionStorage; an invalid code never breaks the journey (ref = null). */
-const REF_RE = /^T[A-Z0-9]{9}$/, REF_KEY = 'routine-man-ref';
+/* also the member's NEXA code (NEXA-YYYY-MM-DD-HH-MM-SS-XXXXXXXX), which the NEXA app puts in the «مشاور زنده» link */
+const REF_RE = /^(?:T[A-Z0-9]{9}|NEXA-\d{4}(?:-\d{2}){5}-[2-9A-HJ-NP-Z]{8})$/, REF_KEY = 'routine-man-ref';
 const REF = (() => {
   let ref = null;
   try { const q = (new URLSearchParams(location.search).get('ref') || '').trim().toUpperCase(); if (REF_RE.test(q)) ref = q; } catch (e) {}
