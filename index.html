@@ -197,7 +197,8 @@ const API_BASE = "";
    so there it needs API_BASE; without it the form stays a local demo, like the artifact. */
 const LEAD_URL = !BACKEND ? null : API_BASE ? API_BASE.replace(/\/+$/, '') + '/api/lead' : /\.github\.io$/.test(location.hostname) ? null : '/api/lead';
 /* NEXA first: the lead reaches «پاسخ‌های لینک‌ها» of the member whose NEXA code is in ?ref=.
-   While NEXA's switch is off (404), unreachable (network/timeout) or down (5xx), the form does what it did before (LEAD_URL or the local demo). */
+   While NEXA's switch is off (404) the form does what it did before (LEAD_URL or the local demo). When NEXA is down (5xx) or
+   unreachable (network/timeout) it goes to LEAD_URL when that is set; without LEAD_URL it asks to try again (never a fake success). */
 const NEXA_API = 'https://nexa-net.app/external-leads/routine-man';
 const NEXA_REF = /^NEXA-\d{4}(?:-\d{2}){5}-[2-9A-HJ-NP-Z]{8}$/i;
 
@@ -677,14 +678,14 @@ async function lead() {
       const b = $('#ls'); b.disabled = true; b.textContent = 'در حال ثبت…'; tap();
       const payload = leadPayload(name, phone);
       const n = await sendNexa(payload);
-      const r = n !== 'fallback' ? n : LEAD_URL ? await sendLead(payload) : (await sleep(700), 'ok');
+      const r = n === 'fallback' ? (LEAD_URL ? await sendLead(payload) : (await sleep(700), 'ok')) : n === 'unavailable' && LEAD_URL ? await sendLead(payload) : n;
       if (r === 'retry') {        // §35: keep it, tell the person calmly, retry in the background
         S.outbox = payload; save(); retryOutbox();
         msg.className = 'form-msg calm'; msg.textContent = 'اتصال یه لحظه قطع شد؛ جوابت پیش ما می‌مونه و دوباره تلاش می‌کنیم.';
         await sleep(2600);
       } else if (r !== 'ok') {
         if (r === 'conflict') { delete S.leadId; save(); }   // the next try goes out as a new request
-        msg.textContent = r === 'consent' ? CONSENT.missing : r === 'nexa_invalid' ? 'اسم و شماره رو یه بار دیگه چک کن.' : r === 'rate' ? 'چند بار پشت‌سرهم تلاش شد؛ چند دقیقه دیگه دوباره امتحان کن.' : r === 'conflict' ? 'ثبت کامل نشد؛ چند لحظه دیگه یه بار دیگه امتحان کن.' : r === 'no_referrer' ? 'ثبت انجام نشد؛ لطفاً از لینکی که مشاورت برات فرستاده دوباره وارد شو. جواب‌هات سر جاشون می‌مونن.' : r === 'invalid' ? text('LD3') : 'ثبت انجام نشد؛ یه بار دیگه امتحان کن.';
+        msg.textContent = r === 'unavailable' ? 'ثبت انجام نشد؛ چند لحظه دیگه دوباره امتحان کن.' : r === 'consent' ? CONSENT.missing : r === 'nexa_invalid' ? 'اسم و شماره رو یه بار دیگه چک کن.' : r === 'rate' ? 'چند بار پشت‌سرهم تلاش شد؛ چند دقیقه دیگه دوباره امتحان کن.' : r === 'conflict' ? 'ثبت کامل نشد؛ چند لحظه دیگه یه بار دیگه امتحان کن.' : r === 'no_referrer' ? 'ثبت انجام نشد؛ لطفاً از لینکی که مشاورت برات فرستاده دوباره وارد شو. جواب‌هات سر جاشون می‌مونن.' : r === 'invalid' ? text('LD3') : 'ثبت انجام نشد؛ یه بار دیگه امتحان کن.';
         b.disabled = false; b.textContent = 'ثبت'; return;
       }
       S.lead = {name, phone: phone.slice(0, 4) + '****' + phone.slice(-3), at: new Date().toISOString(), consent: {contact: true, health: true, v: CONSENT.v}}; save();
@@ -716,7 +717,7 @@ function leadPayload(name, phone) {
   return {referralCode: REF || S.ref || '', name, phone, sourceLeadId: S.leadId, summaries: leadSummaries(), contactConsent: true, healthConsent: true};
 }
 /* NEXA (external-leads): only NEXA's own fields; the referral only when it is a NEXA code.
-   'ok' | 'fallback' (off / unreachable / 5xx) | 'nexa_invalid' | 'consent' | 'rate' | 'conflict' | 'error' */
+   'ok' | 'fallback' (404: switch off) | 'unavailable' (5xx / network / timeout) | 'nexa_invalid' | 'consent' | 'rate' | 'conflict' | 'error' */
 async function sendNexa(p) {
   const ref = NEXA_REF.test(p.referralCode || '') ? p.referralCode : '';
   const body = {...(ref ? {referralCode: ref} : {}), name: p.name, phone: p.phone, sourceLeadId: p.sourceLeadId,
@@ -725,13 +726,14 @@ async function sendNexa(p) {
   const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 12000);
   try {
     const r = await fetch(NEXA_API, {method: 'POST', mode: 'cors', credentials: 'omit', headers: {'content-type': 'application/json'}, body: JSON.stringify(body), signal: ctl.signal});
-    if (r.status === 404 || r.status >= 500) return 'fallback';
+    if (r.status === 404) return 'fallback';
+    if (r.status >= 500) return 'unavailable';
     const j = await r.json().catch(() => ({}));
-    if (r.ok) return j.ok ? 'ok' : 'fallback';
+    if (r.ok) return j.ok ? 'ok' : 'unavailable';
     if (j.error === 'consent_required') return 'consent';
     if (r.status === 400 || r.status === 422) return 'nexa_invalid';
     return r.status === 429 ? 'rate' : r.status === 409 ? 'conflict' : 'error';
-  } catch (e) { return 'fallback'; }
+  } catch (e) { return 'unavailable'; }
   finally { clearTimeout(timer); }
 }
 /* 'ok' | 'retry' (network / server trouble) | 'invalid' | 'no_referrer' | 'error' */
