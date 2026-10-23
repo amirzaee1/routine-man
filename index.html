@@ -200,7 +200,7 @@ const LEAD_URL = !BACKEND ? null : API_BASE ? API_BASE.replace(/\/+$/, '') + '/a
    While NEXA's switch is off (404) the form does what it did before (LEAD_URL or the local demo). When NEXA is down (5xx) or
    unreachable (network/timeout) it goes to LEAD_URL when that is set; without LEAD_URL it asks to try again (never a fake success). */
 const NEXA_API = 'https://nexa-net.app/external-leads/routine-man';
-const NEXA_REF = /^NEXA-\d{4}(?:-\d{2}){5}-[2-9A-HJ-NP-Z]{8}$/i;
+const NEXA_REF = /^NEXA-\d{4}(?:-\d{2}){5}-[2-9A-HJ-NP-Z]{8}$/i, NEXA_LINK_REF = /^nxl-[A-Za-z0-9_-]{43}$/;
 
 const $ = (s, el = document) => el.querySelector(s);
 const panel = $('#panel'), app = $('#app');
@@ -226,10 +226,10 @@ const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null'
 /* ---------- referral (?ref=CODE, master prompt §26) ----------
    Read once on entry and kept in sessionStorage; an invalid code never breaks the journey (ref = null). */
 /* also the member's NEXA code (NEXA-YYYY-MM-DD-HH-MM-SS-XXXXXXXX), which the NEXA app puts in the «مشاور زنده» link */
-const REF_RE = /^(?:T[A-Z0-9]{9}|NEXA-\d{4}(?:-\d{2}){5}-[2-9A-HJ-NP-Z]{8})$/, REF_KEY = 'routine-man-ref';
+const REF_RE = /^(?:T[A-Z0-9]{9}|NEXA-\d{4}(?:-\d{2}){5}-[2-9A-HJ-NP-Z]{8}|nxl-[A-Za-z0-9_-]{43})$/, REF_KEY = 'routine-man-ref';
 const REF = (() => {
   let ref = null;
-  try { const q = (new URLSearchParams(location.search).get('ref') || '').trim().toUpperCase(); if (REF_RE.test(q)) ref = q; } catch (e) {}
+  try { const raw = (new URLSearchParams(location.search).get('ref') || '').trim(); const q = raw.startsWith('nxl-') ? raw : raw.toUpperCase(); if (REF_RE.test(q)) ref = q; } catch (e) {}
   try { if (ref) sessionStorage.setItem(REF_KEY, ref); else ref = sessionStorage.getItem(REF_KEY); } catch (e) {}
   return ref && REF_RE.test(ref) ? ref : null;
 })();
@@ -719,7 +719,7 @@ function leadPayload(name, phone) {
 /* NEXA (external-leads): only NEXA's own fields; the referral only when it is a NEXA code.
    'ok' | 'fallback' (404: switch off) | 'unavailable' (5xx / network / timeout) | 'nexa_invalid' | 'consent' | 'rate' | 'conflict' | 'error' */
 async function sendNexa(p) {
-  const ref = NEXA_REF.test(p.referralCode || '') ? p.referralCode : '';
+  const ref = NEXA_REF.test(p.referralCode || '') || NEXA_LINK_REF.test(p.referralCode || '') ? p.referralCode : '';
   const body = {...(ref ? {referralCode: ref} : {}), name: p.name, phone: p.phone, sourceLeadId: p.sourceLeadId,
     summaries: (p.summaries || []).slice(0, 8).map(x => ({title: String(x.title).slice(0, 40), priority: String(x.priority || '').slice(0, 160)})),
     contactConsent: true, healthConsent: true, consentVersion: CONSENT.v};
